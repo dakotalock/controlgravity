@@ -55,4 +55,502 @@
 
         #controlsPanel button {
             padding: 0.6rem 1.2rem;
-            background: linear-gradient(45deg, #0ea5e9, #0d9488
+            background: linear-gradient(45deg, #0ea5e9, #0d9488);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #controlsPanel button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(45deg, #38bdf8, #14b8a6);
+        }
+
+        #controlsPanel button.clicked {
+            animation: buttonPress 0.15s ease-out;
+        }
+
+        @keyframes buttonPress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .slider-group label {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+        }
+
+        .audio-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 1.2rem;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 260px;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
+
+        .audio-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #5eead4;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .audio-title i {
+            color: #38bdf8;
+        }
+
+        .audio-controls button {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-controls button:hover {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            transform: scale(1.1);
+        }
+
+        .color-palette {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem;
+            border-radius: 14px;
+            display: flex;
+            gap: 0.7rem;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
+
+        .color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-option:hover {
+            transform: scale(1.15);
+        }
+
+        .color-option.active {
+            border-color: white;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gravityCanvas"></canvas>
+
+    <div id="controlsPanel">
+        <div class="panel-title">
+            <i class="fas fa-stars"></i> Cosmic Choreographer
+        </div>
+        <button id="clearWellsBtn" aria-label="Clear all invisible gravity wells">
+            <i class="fas fa-trash-alt mr-2"></i> Clear All Wells
+        </button>
+        <button id="resetParticlesBtn" aria-label="Reset particle positions and velocities">
+            <i class="fas fa-sync-alt mr-2"></i> Reset Particles
+        </button>
+        <div class="slider-group">
+            <label for="trailFadeSlider">
+                <span>Trail Fade:</span>
+                <span id="trailFadeValue" class="text-cyan-300 font-mono">0.050</span>
+            </label>
+            <input type="range" id="trailFadeSlider" min="0.001" max="0.2" step="0.001" value="0.05">
+        </div>
+        <p class="info-text">
+            Click anywhere to create gravity wells. Particles will orbit around them in cosmic patterns.
+        </p>
+    </div>
+
+    <div class="audio-controls">
+        <div class="audio-title">
+            <i class="fas fa-music"></i> Cosmic Harmony
+        </div>
+        <div class="flex items-center justify-between">
+            <button id="muteBtn" aria-label="Mute audio">
+                <i class="fas fa-volume-mute" id="volumeIcon"></i>
+            </button>
+            <div id="audioStatus" class="text-sm text-slate-300">
+                Ready to play
+            </div>
+        </div>
+    </div>
+
+    <div class="color-palette">
+        <div class="color-option active" data-color="#88EEFF" style="background-color: #88EEFF;" title="Cosmic Blue"></div>
+        <div class="color-option" data-color="#FF88AA" style="background-color: #FF88AA;" title="Stellar Pink"></div>
+        <div class="color-option" data-color="#AAFF88" style="background-color: #AAFF88;" title="Nebula Green"></div>
+        <div class="color-option" data-color="#FFAA88" style="background-color: #FFAA88;" title="Solar Flare"></div>
+        <div class="color-option" data-color="#88AAFF" style="background-color: #88AAFF;" title="Galaxy Purple"></div>
+        <div class="color-option" data-color="#FFFF88" style="background-color: #FFFF88;" title="Supernova Yellow"></div>
+    </div>
+
+    <div class="watermark">Created by Dakota Rain Lock</div>
+    
+    <!-- YouTube Audio Player (hidden) -->
+    <iframe id="youtubeAudio" width="0" height="0" src="https://www.youtube.com/embed/CPktlB_jGrk?autoplay=0&mute=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="hidden"></iframe>
+
+    <script>
+        // --- Simulation Constants ---
+        const GRAVITY_CONSTANT = 100;
+        const SOFTENING_FACTOR_SQ = 500;
+        const PARTICLE_COUNT = 700;
+        const PARTICLE_RADIUS = 1;
+        const INITIAL_PARTICLE_SPEED = 0.8;
+        const PARTICLE_MASS = 1;
+        
+        // Color options for particles
+        const PARTICLE_COLORS = ['#88EEFF', '#FF88AA', '#AAFF88', '#FFAA88', '#88AAFF', '#FFFF88'];
+        let particleColor = PARTICLE_COLORS[0];
+        
+        // Visual Feedback Constants
+        const WELL_INDICATOR_DURATION = 1000;
+        const WELL_INDICATOR_INITIAL_RADIUS = 15;
+        const WELL_INDICATOR_COLOR = '#FFD700';
+
+        // Global Simulation Variables
+        let canvas;
+        let ctx;
+        let particles = [];
+        let gravityWells = [];
+        let visualWellIndicators = [];
+        let lastTime = 0;
+        let trailFadeAlpha = 0.05;
+        
+        // YouTube Player Variables
+        let player;
+        let firstInteraction = false;
+        let isMuted = true; // Start muted
+
+        class Particle {
+            constructor(x, y, vx, vy, mass) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.mass = mass;
+            }
+        }
+
+        class GravityWell {
+            constructor(x, y, strength) {
+                this.x = x;
+                this.y = y;
+                this.strength = strength;
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('gravityCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+
+            canvas.addEventListener('click', handleCanvasClick);
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const vx = (Math.random() * 2 - 1) * INITIAL_PARTICLE_SPEED;
+                const vy = (Math.random() * 2 - 1) * INITIAL_PARTICLE_SPEED;
+                particles.push(new Particle(x, y, vx, vy, PARTICLE_MASS));
+            }
+        }
+
+        function handleCanvasClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            gravityWells.push(new GravityWell(x, y, GRAVITY_CONSTANT));
+
+            visualWellIndicators.push({
+                x: x,
+                y: y,
+                startTime: performance.now(),
+                duration: WELL_INDICATOR_DURATION,
+                initialRadius: WELL_INDICATOR_INITIAL_RADIUS,
+                color: WELL_INDICATOR_COLOR
+            });
+            
+            // Handle first interaction
+            if (!firstInteraction) {
+                firstInteraction = true;
+                document.getElementById('audioStatus').textContent = "Playing cosmic music...";
+                toggleMute(); // Unmute on first interaction
+            }
+        }
+
+        function clearWells() {
+            gravityWells = [];
+            visualWellIndicators = [];
+        }
+
+        function update(dt) {
+            for (const particle of particles) {
+                let totalForceX = 0;
+                let totalForceY = 0;
+
+                for (const well of gravityWells) {
+                    const dx = well.x - particle.x;
+                    const dy = well.y - particle.y;
+                    const distanceSq = dx * dx + dy * dy + SOFTENING_FACTOR_SQ;
+                    const distance = Math.sqrt(distanceSq);
+                    const forceMagnitude = (well.strength * particle.mass) / distanceSq;
+                    const forceX = forceMagnitude * (dx / distance);
+                    const forceY = forceMagnitude * (dy / distance);
+                    totalForceX += forceX;
+                    totalForceY += forceY;
+                }
+
+                const accelerationX = totalForceX / particle.mass;
+                const accelerationY = totalForceY / particle.mass;
+                const physicsDt = dt / 16.666;
+                particle.vx += accelerationX * physicsDt;
+                particle.vy += accelerationY * physicsDt;
+                particle.x += particle.vx * physicsDt;
+                particle.y += particle.vy * physicsDt;
+
+                if (particle.x < 0) particle.x += canvas.width;
+                if (particle.x > canvas.width) particle.x -= canvas.width;
+                if (particle.y < 0) particle.y += canvas.height;
+                if (particle.y > canvas.height) particle.y -= canvas.height;
+            }
+        }
+
+        function render(currentTime) {
+            ctx.fillStyle = `rgba(0, 0, 0, ${trailFadeAlpha})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const activeVisualIndicators = [];
+            for (const indicator of visualWellIndicators) {
+                const elapsedTime = currentTime - indicator.startTime;
+                const progress = elapsedTime / indicator.duration;
+
+                if (progress < 1) {
+                    const alpha = 1 - progress;
+                    const currentRadius = indicator.initialRadius * (1 - progress * 0.5); 
+                    ctx.beginPath();
+                    ctx.arc(indicator.x, indicator.y, currentRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = indicator.color;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = alpha;
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                    activeVisualIndicators.push(indicator);
+                }
+            }
+            visualWellIndicators = activeVisualIndicators;
+
+            ctx.fillStyle = particleColor;
+            for (const particle of particles) {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, PARTICLE_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animate(currentTime) {
+            const dt = currentTime - lastTime;
+            lastTime = currentTime;
+            update(dt);
+            render(currentTime);
+            requestAnimationFrame(animate);
+        }
+
+        // YouTube Player Functions
+        function initYouTubePlayer() {
+            // Create YouTube player iframe
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtubeAudio', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Player is ready but stays muted until first interaction
+            document.getElementById('audioStatus').textContent = "Music ready - click to play";
+        }
+
+        function onPlayerStateChange(event) {
+            // Handle state changes if needed
+        }
+
+        function toggleMute() {
+            if (!player) return;
+            
+            if (isMuted) {
+                player.unMute();
+                player.playVideo();
+                document.getElementById('volumeIcon').className = 'fas fa-volume-up';
+                document.getElementById('audioStatus').textContent = "Playing cosmic music";
+            } else {
+                player.mute();
+                document.getElementById('volumeIcon').className = 'fas fa-volume-mute';
+                document.getElementById('audioStatus').textContent = "Muted";
+            }
+            
+            isMuted = !isMuted;
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            initParticles();
+            initYouTubePlayer();
+            
+            // Setup controls
+            document.getElementById('clearWellsBtn').addEventListener('click', () => {
+                clearWells();
+            });
+
+            document.getElementById('resetParticlesBtn').addEventListener('click', () => {
+                initParticles();
+            });
+            
+            // Trail fade slider
+            const trailFadeSlider = document.getElementById('trailFadeSlider');
+            const trailFadeValueSpan = document.getElementById('trailFadeValue');
+            trailFadeSlider.value = trailFadeAlpha; 
+            trailFadeValueSpan.textContent = trailFadeAlpha.toFixed(3);
+            trailFadeSlider.addEventListener('input', (event) => {
+                trailFadeAlpha = parseFloat(event.target.value);
+                trailFadeValueSpan.textContent = trailFadeAlpha.toFixed(3);
+            });
+
+            // Color palette
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    particleColor = option.dataset.color;
+                });
+            });
+
+            // Mute button
+            document.getElementById('muteBtn').addEventListener('click', toggleMute);
+
+            // Start animation
+            requestAnimationFrame(animate);
+        });
+        
+        // Expose YouTube API callback
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+    </script>
+</body>
+</html>
